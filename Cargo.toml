@@ -1,0 +1,16 @@
+[package]
+name = "oil-backend"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "4"
+serde = { version = "1.0.194", features = ["derive"] }
+serde_json = "1"
+calamine = "0.23.1"
+actix-easy-multipart = "2.1.1"
+anyhow = "1"
+csv = "1.1.6"
+actix-cors = "0.6.5"

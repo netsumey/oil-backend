@@ -1,0 +1,6 @@
+/target
+/checkpoints
+/test_results
+/lib/libs/venv
+/lib/saved_models
+/lib/upload_data

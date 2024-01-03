@@ -1,0 +1,3 @@
+long_term_forecast_yali_10_10_Transformer_yali_ftMS_sl10_ll5_pl10_dm512_nh8_el2_dl1_df2048_fc3_ebtimeF_dtTrue_Exp_0  
+mse:0.015436854213476181, mae:0.067813441157341
+
