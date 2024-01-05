@@ -70,3 +70,5 @@ class Operator:
     def get_top_rows(self, k):
         return self.csv.head(k)
 
+    def get_csv(self):
+        return self.csv

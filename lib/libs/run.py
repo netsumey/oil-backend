@@ -150,8 +150,6 @@ if __name__ == '__main__':
         operator.save_changes()
         sys.exit(0)
 
-
-
     if args.use_gpu and args.use_multi_gpu:
         args.devices = args.devices.replace(' ', '')
         device_ids = args.devices.split(',')
