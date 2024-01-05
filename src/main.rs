@@ -12,13 +12,14 @@ use actix_web::{App, http, HttpResponse, HttpServer, middleware, web};
 use serde::{Deserialize, Serialize};
 use crate::data_display::display_info;
 use crate::data_handle::handle_req;
-use crate::model::handle_model_train;
+use crate::model::{handle_get_models, handle_model_train, handle_test_model};
 
 const LIB_PATH: &str = "./lib";
 const DATA_PATH: &str = "./lib/upload_data";
 const MODELS_PATH: &str = "./lib/saved_models";
 const INTERPRET: &str = "./lib/libs/venv/bin/python";
-
+const MODEL_PATH: &str = "./checkpoints";
+const RESULT_PATH: &str = "./results";
 
 #[derive(FromMultipart)]
 struct UploadInfo {
@@ -110,6 +111,8 @@ mut web::ServiceConfig) {
             .service(web::resource("/data/display").route(web::post().to(display_info)))
             .service(web::resource("/model/train").route(web::post().to(handle_model_train)))
             .service(web::resource("/data/handle").route(web::post().to(handle_req)))
+            .service(web::resource("/model/get_all").route(web::post().to(handle_get_models)))
+            .service(web::resource("/model/test").route(web::post().to(handle_test_model)))
     );
 }
 #[actix_web::main]

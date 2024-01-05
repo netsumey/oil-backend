@@ -1,3 +1,4 @@
+import argparse
 import os
 import torch
 import numpy as np
@@ -38,8 +39,8 @@ def list_files_and_folders(path):
     for file in files:
         print(file)
 
-def _data_process(data_path_pred, data_path_true):
-    df_raw = pd.read_csv('./dataset/YALI_Processed01/yali_test.csv')
+def _data_process(data_path_pred, data_path_true, title, test_csv):
+    df_raw = pd.read_csv(test_csv)
     cols_data = df_raw.columns[1:]
     df_data = df_raw[cols_data]
     df_data = df_data.iloc[:, -1:]
@@ -78,13 +79,28 @@ def _data_process(data_path_pred, data_path_true):
     plt.plot(range(len(a)), a, color='blue', label="pred")
     plt.plot(range(len(b)), b, color='red', label="true")
     plt.legend(['pred', 'true'])
+    plt.title(title)
 
-    plt.savefig('rnn-10.png')
+    plt.savefig('tmp.png')
     plt.show()
 
-# 你可以替换这里的路径为你想要检查的路径
-directory_path = './results/'
-a = 'long_term_forecast_yali_10_10_RNN_yali_ftMS_sl10_ll5_pl10_dm512_nh8_el2_dl1_df2048_fc3_ebtimeF_dtTrue_Exp_0'
-# list_files_and_folders(directory_path)
-_data_process('./results/'+a+'/pred.npy',
-              './results/'+a+'/true.npy')
+# # 你可以替换这里的路径为你想要检查的路径
+# directory_path = './results/'
+# a = 'long_term_forecast_yali_10_10_RNN_yali_ftMS_sl10_ll5_pl10_dm512_nh8_el2_dl1_df2048_fc3_ebtimeF_dtTrue_Exp_0'
+# # list_files_and_folders(directory_path)
+# _data_process('./results/'+a+'/pred.npy',
+#               './results/'+a+'/true.npy')
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='calmse')
+
+    parser.add_argument('--directory', type=str, required=False)
+    parser.add_argument('--a', type=str, required=False)
+    parser.add_argument('--title', type=str, required=False)
+    parser.add_argument('--test_csv', type=str, required=False)
+
+    args = parser.parse_args()
+
+    _data_process(args.directory + "/" +  args.a + "/pred.npy",
+                  args.directory + "/" + args.a + "/true.npy", args.title, args.test_csv)
+

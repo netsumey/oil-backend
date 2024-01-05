@@ -958,6 +958,7 @@ dependencies = [
  "actix-easy-multipart",
  "actix-web",
  "anyhow",
+ "base64",
  "calamine",
  "csv",
  "serde",

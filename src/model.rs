@@ -1,10 +1,10 @@
-use std::fs::read;
-use std::io::{BufRead, BufReader};
+use std::fs;
+use std::fs::{File, read};
+use std::io::{BufRead, BufReader, Read};
 use std::process::{Command, Stdio};
-use actix_web::{HttpResponse, web};
+use actix_web::{delete, HttpResponse, web};
 use serde::{Deserialize, Serialize};
-use crate::data_display::DisplayRequest;
-use crate::{DATA_PATH, INTERPRET};
+use crate::{DATA_PATH, INTERPRET, MODEL_PATH, RESULT_PATH};
 
 #[derive(Serialize, Deserialize)]
 pub struct ModelRequest {
@@ -89,4 +89,91 @@ pub async fn handle_model_train(req: web::Json<ModelRequest>)
     println!("return");
 
     Ok(HttpResponse::Ok().body(""))
+}
+
+fn all_models() -> Vec<String>  {
+    let entries = fs::read_dir(MODEL_PATH).unwrap();
+
+    entries
+        .map(|e| e
+            .unwrap()
+            .file_name()
+            .to_str()
+            .unwrap()
+            .to_string())
+        .collect::<Vec<_>>()
+}
+
+pub async fn handle_get_models() -> actix_web::Result<HttpResponse> {
+    let names = all_models()
+        .into_iter()
+        .map(|e| e.split("_").map(|e| e.to_string())
+            .collect::<Vec<_>>())
+        .collect::<Vec<_>>();
+
+    #[derive(Serialize)]
+    struct Response {
+        name: String,
+        task_name: String,
+        structure: String,
+        data_source: String,
+    }
+
+    Ok(
+        HttpResponse::Ok()
+            .body(serde_json::to_string(
+                &Response {
+                    name: format!("{:?}", names
+                        .iter()
+                        .map(|e| e[3].clone())
+                        .collect::<Vec<_>>()),
+                    task_name: format!("{:?}", names
+                        .iter()
+                        .map(|_e| "longTermForecast".to_string())
+                        .collect::<Vec<_>>()),
+                    structure: format!("{:?}", names
+                        .iter()
+                        .map(|e| e[4].clone())
+                        .collect::<Vec<_>>()),
+                    data_source: format!("{:?}", names
+                        .iter()
+                        .map(|e| e[5].clone())
+                        .collect::<Vec<_>>()),
+                }
+            )?)
+    )
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct TestModelReq {
+    name: String,
+}
+
+pub async fn handle_test_model(info: web::Json<TestModelReq>) -> actix_web::Result<HttpResponse> {
+    let names = all_models();
+
+    let dir_name = names.iter()
+        .find(|e| e.find(&info.name).is_some()).unwrap();
+
+    let title = format!("{} {} steps", dir_name.split("_").collect::<Vec<_>>()[3].clone(),
+        &dir_name.split("_").collect::<Vec<_>>()[9].clone()[2..]);
+
+    let command = Command::new(INTERPRET)
+        .args(&["./lib/libs/calmse.py", "--directory", &RESULT_PATH.to_string(),
+        "--a", dir_name, "--title", &title, "--test_csv", "./lib/upload_data/test.csv"])
+        .output().unwrap();
+
+    println!("{:#?}", command);
+
+    let mut file = File::open("./tmp.png")?;
+
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer)?;
+
+    let base64_string = base64::encode(&buffer);
+
+    Ok(
+        HttpResponse::Ok()
+            .body(serde_json::to_string(&base64_string)?)
+    )
 }

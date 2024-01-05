@@ -1,3 +1,6 @@
 long_term_forecast_fuckhehre_Transformer_yali_ftMS_sl10_ll5_pl10_dm512_nh8_el2_dl1_df2048_fc3_ebtimeF_dtTrue_'Exp'_0  
 mse:nan, mae:nan
 
+long_term_forecast_Tlipoca_Transformer_yali_ftMS_sl10_ll5_pl10_dm512_nh8_el2_dl1_df2048_fc3_ebtimeF_dtTrue_Exp_0  
+mse:0.015488254837691784, mae:0.06681724637746811
+
