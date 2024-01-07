@@ -23,17 +23,24 @@ pub struct ModelRequest {
     dec_in: String,
     c_out: String,
     itr: String,
+    is_training: bool,
 }
 
 pub async fn handle_model_train(req: web::Json<ModelRequest>)
 -> actix_web::Result<HttpResponse> {
+    println!("train_or_test");
+
     let mut command = Command::new(INTERPRET)
         .args(&[
             "./lib/libs/run.py",
             "--task_name",
             "long_term_forecast",
             "--is_training",
-            "1",
+            &format!("{}", if req.is_training {
+                1
+            } else {
+                0
+            }),
             "--root_path",
             "./lib/upload_data",
             "--data_train_path",
@@ -72,23 +79,18 @@ pub async fn handle_model_train(req: web::Json<ModelRequest>)
             "Exp",
             "--itr",
             &req.itr,
-        ]).stdout(Stdio::piped())
-        .spawn()?;
+        ]).output().unwrap();
 
-        println!("{:#?}", command);
+    println!("{:#?}", command);
 
-    let stdout = command.stdout.take().unwrap();
-    let reader = BufReader::new(stdout);
+    let res_bytes = command.stdout;
+    let res = String::from_utf8_lossy(&res_bytes);
 
-    for line in reader.lines() {
-        println!("{}", line?);
-    }
+    println!("{}", res.to_string());
 
-    let status = command.wait()?;
-
-    println!("return");
-
-    Ok(HttpResponse::Ok().body(""))
+    Ok(HttpResponse::Ok()
+        .content_type("text/plain")
+        .body(res.to_string()))
 }
 
 fn all_models() -> Vec<String>  {
